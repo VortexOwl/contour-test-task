@@ -9,30 +9,41 @@ class Program
     {
         const string outputFolder = "result";
 
-        Directory.CreateDirectory(outputFolder);
-
-        Processor processor = new Processor();
-        XsltCompiler compiler = processor.NewXsltCompiler();
-
-        for (int number = 1; number <= 2; number += 1)
+        try
         {
-            string xmlPath = Path.Combine("data", $"Data{number}.xml");
-            string xslPath = Path.Combine("src", $"style{number}.xslt");
-            string outputPath = Path.Combine(outputFolder, $"Result{number}.xml");
+            Directory.CreateDirectory(outputFolder);
 
-            TransformXml(xmlPath, xslPath, outputPath, processor, compiler);
-             
-            Log("INFO", $"Result{number}.xml создан в папке {outputFolder}.");
-        
-            AddSalaryAll(outputPath);
+            Processor processor = new Processor();
+            XsltCompiler compiler = processor.NewXsltCompiler();
 
-            Log("INFO", $"Result{number}_v2.xml создан в папке {outputFolder}.");
-        
-            if (number == 1) {
-                PaySalaryAll(xmlPath, outputFolder);
+            for (int number = 1; number <= 2; number += 1)
+            {
+                string xmlPath = Path.Combine("data", $"Data{number}.xml");
+                string xslPath = Path.Combine("src", $"style{number}.xslt");
+                string outputPath = Path.Combine(outputFolder, $"Result{number}.xml");
 
-                Log("INFO", $"Data{number}_v2.xml создан в папке {outputFolder}.");
+                TransformXml(xmlPath, xslPath, outputPath, processor, compiler);
+                
+                Log("INFO", $"Result{number}.xml создан в папке {outputFolder}.");
+            
+                AddSalaryAll(outputPath);
+
+                Log("INFO", $"Result{number}_v2.xml создан в папке {outputFolder}.");
+            
+                if (number == 1) {
+                    PaySalaryAll(xmlPath, outputFolder);
+
+                    Log("INFO", $"Data{number}_v2.xml создан в папке {outputFolder}.");
+                }
             }
+        }
+        catch (TypeInitializationException)
+        {
+            Log("WARNING", "Ошибка из Saxon об отсутствии необязательных зависимостей в моей версии Microsoft.NET.Sdk");
+        }
+        catch (Exception ex)
+        {
+            Log("ERROR", $"\n{ex.GetType().Name}: {ex.Message}");
         }
     }
 
