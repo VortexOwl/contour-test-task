@@ -1,6 +1,9 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Xml.Linq;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.IO;
 using Saxon.Api;
 
 class Program
@@ -8,42 +11,30 @@ class Program
     static void Main()
     {
         const string outputFolder = "result";
+        Directory.CreateDirectory(outputFolder);
 
-        try
+        Processor processor = new Processor();
+        XsltCompiler compiler = processor.NewXsltCompiler();
+
+        for (int number = 1; number <= 2; number += 1)
         {
-            Directory.CreateDirectory(outputFolder);
+            string xmlPath = Path.Combine("data", $"Data{number}.xml");
+            string xslPath = Path.Combine("src", $"style{number}.xslt");
+            string outputPath = Path.Combine(outputFolder, $"Result{number}.xml");
 
-            Processor processor = new Processor();
-            XsltCompiler compiler = processor.NewXsltCompiler();
-
-            for (int number = 1; number <= 2; number += 1)
-            {
-                string xmlPath = Path.Combine("data", $"Data{number}.xml");
-                string xslPath = Path.Combine("src", $"style{number}.xslt");
-                string outputPath = Path.Combine(outputFolder, $"Result{number}.xml");
-
-                TransformXml(xmlPath, xslPath, outputPath, processor, compiler);
-                
-                Log("INFO", $"Result{number}.xml создан в папке {outputFolder}.");
+            TransformXml(xmlPath, xslPath, outputPath, processor, compiler);
             
-                AddSalaryAll(outputPath);
+            Log("INFO", $"Result{number}.xml создан в папке {outputFolder}.");
+        
+            AddSalaryAll(outputPath);
 
-                Log("INFO", $"Result{number}_v2.xml создан в папке {outputFolder}.");
-            
-                if (number == 1) {
-                    PaySalaryAll(xmlPath, outputFolder);
+            Log("INFO", $"Result{number}_v2.xml создан в папке {outputFolder}.");
+        
+            if (number == 1) {
+                PaySalaryAll(xmlPath, outputFolder);
 
-                    Log("INFO", $"Data{number}_v2.xml создан в папке {outputFolder}.");
-                }
+                Log("INFO", $"Data{number}_v2.xml создан в папке {outputFolder}.");
             }
-        }
-        catch (TypeInitializationException)
-        {
-            Log("WARNING", "Ошибка из Saxon об отсутствии необязательных зависимостей в моей версии Microsoft.NET.Sdk");
-        }
-        catch (Exception ex)
-        {
-            Log("ERROR", $"\n{ex.GetType().Name}: {ex.Message}");
         }
     }
 
@@ -95,7 +86,7 @@ class Program
 
             foreach (var employee in doc.Descendants(tagNameEmployee))
             {
-                var sum = employee.Elements(tagNameSalary).Sum(s => ParseAmount((string?)s.Attribute(tagNameAmount)));
+                var sum = employee.Elements(tagNameSalary).Sum(s => ParseAmount((string)s.Attribute(tagNameAmount)));
 
                 employee.Add(new XElement(tagNameAllSalary, new XAttribute(tagNameAmount, sum.ToString(CultureInfo.InvariantCulture))));
             }
@@ -122,7 +113,7 @@ class Program
         {
             var doc = XDocument.Load(xmlPath);
             var tagPay = doc.Element(tagNamePay);
-            var sum = doc.Descendants(tagNameItem).Sum(s => ParseAmount((string?)s.Attribute(tagNameAmount)));
+            var sum = doc.Descendants(tagNameItem).Sum(s => ParseAmount((string)s.Attribute(tagNameAmount)));
             
             if (tagPay == null)
             {
@@ -138,7 +129,7 @@ class Program
         }
     }
 
-    static double ParseAmount(string? amountStr)
+    static double ParseAmount(string amountStr)
     {
         if (string.IsNullOrWhiteSpace(amountStr)) 
         {
