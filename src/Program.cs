@@ -1,43 +1,47 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Xml.Linq;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.IO;
 using Saxon.Api;
 
 class Program
 {
     static void Main()
     {
+        const string outputFolder = "result";
+        Directory.CreateDirectory(outputFolder);
+
+        Processor processor = new Processor();
+        XsltCompiler compiler = processor.NewXsltCompiler();
+
         for (int number = 1; number <= 2; number += 1)
         {
             string xmlPath = Path.Combine("data", $"Data{number}.xml");
             string xslPath = Path.Combine("src", $"style{number}.xslt");
-            string outputPath = Path.Combine("result", $"Result{number}.xml");
+            string outputPath = Path.Combine(outputFolder, $"Result{number}.xml");
 
-            XMLTransform(xmlPath, xslPath, outputPath);
-             
-            Console.WriteLine($"Result{number}.xml создан в папке result.");
+            TransformXml(xmlPath, xslPath, outputPath, processor, compiler);
+            
+            Log("INFO", $"Result{number}.xml создан в папке {outputFolder}.");
         
             AddSalaryAll(outputPath);
 
-            Console.WriteLine($"Result{number}_v2.xml создан в папке result.");
+            Log("INFO", $"Result{number}_v2.xml создан в папке {outputFolder}.");
         
             if (number == 1) {
-                PaySalaryAll(xmlPath);
+                PaySalaryAll(xmlPath, outputFolder);
 
-                Console.WriteLine($"Data{number}_v2.xml создан в папке result.");
+                Log("INFO", $"Data{number}_v2.xml создан в папке {outputFolder}.");
             }
         }
     }
 
-    static void XMLTransform(string xmlPath, string xslPath, string outputPath)
+    static void TransformXml(string xmlPath, string xslPath, string outputPath, Processor processor, XsltCompiler compiler)
     {
         try
         {
-            Directory.CreateDirectory("result");
-
-            Processor processor = new Processor();
-
-            XsltCompiler compiler = processor.NewXsltCompiler();
-
             XsltExecutable executable =
                 compiler.Compile(
                     new Uri(Path.GetFullPath(xslPath))
@@ -61,44 +65,95 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Ошибка:");
-            Console.WriteLine(ex.Message);
+            Log("ERROR", $"\n{ex.GetType().Name}: {ex.Message}");
         }
     }
 
     static void AddSalaryAll(string xmlPath)
     {
-        var doc = XDocument.Load(xmlPath);
-        foreach (var employee in doc.Descendants("Employee"))
-        {
-            var sum = employee.Elements("salary").Sum(s => ParseAmount((string)s.Attribute("amount")));
+        string directory = Path.GetDirectoryName(xmlPath) ?? "";
+        string fileName = Path.GetFileNameWithoutExtension(xmlPath);
+        string savePath = Path.Combine(directory, $"{fileName}_v2.xml");
 
-            employee.Add(new XElement("salary_all", new XAttribute("amount", sum.ToString(CultureInfo.InvariantCulture))));
+        const string tagNameEmployee = "Employee";
+        const string tagNameAmount = "amount";
+        const string tagNameSalary = "salary";
+        const string tagNameAllSalary = "all_salary";
+
+        try
+        {
+            var doc = XDocument.Load(xmlPath);
+
+            foreach (var employee in doc.Descendants(tagNameEmployee))
+            {
+                var sum = employee.Elements(tagNameSalary).Sum(s => ParseAmount((string)s.Attribute(tagNameAmount)));
+
+                employee.Add(new XElement(tagNameAllSalary, new XAttribute(tagNameAmount, sum.ToString(CultureInfo.InvariantCulture))));
+            }
+            
+            doc.Save(savePath);
+        }
+        catch (Exception ex)
+        {
+            Log("ERROR", $"\n{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    static void PaySalaryAll(string xmlPath, string outputFolder)
+    {
+        string outputNameFile = Path.GetFileNameWithoutExtension(xmlPath);
+        string outputPath = Path.Combine(outputFolder, $"{outputNameFile}_v2.xml");
+
+        const string tagNamePay = "Pay";
+        const string tagNameItem = "item";
+        const string tagNameAmount = "amount";
+        const string tagNameAllAmount = "all_amount";
+
+        try
+        {
+            var doc = XDocument.Load(xmlPath);
+            var tagPay = doc.Element(tagNamePay);
+            var sum = doc.Descendants(tagNameItem).Sum(s => ParseAmount((string)s.Attribute(tagNameAmount)));
+            
+            if (tagPay == null)
+            {
+                Log("ERROR", $"Корневой элемент {tagNamePay} не найден.");
+                return;
+            }
+            tagPay.Add(new XAttribute(tagNameAllAmount, sum.ToString(CultureInfo.InvariantCulture)));
+            doc.Save(outputPath);
+        }
+        catch (Exception ex)
+        {
+            Log("ERROR", $"\n{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    static double ParseAmount(string amountStr)
+    {
+        if (string.IsNullOrWhiteSpace(amountStr)) 
+        {
+            Log("WARNING", "Передана пустая строка.");
+            return 0;
         }
 
-        doc.Save($"{xmlPath.Split('.')[0]}_v2.xml");
-    }
+        string amountNormalized = amountStr.Replace(',', '.');
 
-    static void PaySalaryAll(string xmlPath)
-    {
-        var doc = XDocument.Load(xmlPath);
-        var pay = doc.Element("Pay");
-        var sum = doc.Descendants("item").Sum(s => ParseAmount((string)s.Attribute("amount")));
-        pay.Add(new XAttribute("all_amount", sum.ToString(CultureInfo.InvariantCulture)));
-        
-        var outputPath = Path.GetFileNameWithoutExtension(xmlPath);
-        doc.Save($"result/{outputPath}_v2.xml");
-    }
-
-    static double ParseAmount(string amount_str)
-    {
-        if (string.IsNullOrWhiteSpace(amount_str))
+        try
+        {
+            double amount = double.Parse(amountNormalized, NumberStyles.Any, CultureInfo.InvariantCulture);
+            
+            return amount;
+        }
+        catch (Exception ex)
+        {
+            Log("ERROR", $"\n{ex.GetType().Name}: {ex.Message}");
             return 0;
+        }
+    }
 
-        amount_str = amount_str.Replace(',', '.');
-
-        double.TryParse(amount_str, NumberStyles.Any, CultureInfo.InvariantCulture, out double amount);
-        
-        return amount;
+    static void Log(string level, string message, [CallerMemberName] string method = "Class Program")
+    {
+        Console.WriteLine($"{level} | {method}: {message}");
     }
 }
