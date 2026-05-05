@@ -4,12 +4,12 @@
     <salary amount="2001" mount="january" />
     <salary amount="3001,10" mount="february" />
     <salary amount="1001.1" mount="march" />
-    <all_salary amount="6003.2" />
+    <all_salary amount="6003.20" />
   </Employee>
   <Employee name="Masha" surname="Ivanova">
     <salary amount="2000.0" mount="january" />
     <salary amount="3000" mount="february" />
     <salary amount="1000" mount="march" />
-    <all_salary amount="6000" />
+    <all_salary amount="6000.0" />
   </Employee>
 </Employees>
