@@ -32,12 +32,18 @@ public partial class MainWindow : Window
         string surname = AddSurname.Text ?? "";
         string mount = AddMount.Text ?? "";
         string amount = AddAmount.Text ?? "";
+        bool isAmount = false;
 
-        if (name != "" && surname != "" && mount != "" && amount != "") 
-        {  
+        if (decimal.TryParse(amount, out decimal dAmount) && dAmount >= 0)
+        {
+            isAmount = true;
+        }
+
+        if (name != "" && surname != "" && mount != "" && isAmount) 
+        {
             TransformXml.AddRecordData(name, surname, mount, amount);
         } else {
-            Logger.Print("INFO", "В запросе было передано пустое поле. Чтобы добавить запись заполните все поля.");
+            Logger.Print("INFO", "В запросе было передано поле с некорректным значением. Чтобы добавить запись заполните все поля корректно.");
         }
     }
 }
