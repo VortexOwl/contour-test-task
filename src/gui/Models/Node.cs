@@ -4,7 +4,7 @@ namespace contour_test_task.Models
 {
     public class EmployeeNode
     {
-        public string Title { get; }              // "Lena Ivanova"
+        public string Title { get; }
         public ObservableCollection<SalaryNode> Salaries { get; }
 
         public EmployeeNode(string title, ObservableCollection<SalaryNode> salaries)
@@ -16,7 +16,7 @@ namespace contour_test_task.Models
 
     public class SalaryNode
     {
-        public string Title { get; }             // "march: 1001.1", "all_amount: 6003.20"
+        public string Title { get; }
 
         public SalaryNode(string title)
         {

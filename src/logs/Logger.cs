@@ -1,10 +1,8 @@
 using System;
-using System.Globalization;
-using System.IO;
 using System.Runtime.CompilerServices;
 
 
-namespace Log;
+namespace contour_test_task.Log;
 
 public class Logger
 {

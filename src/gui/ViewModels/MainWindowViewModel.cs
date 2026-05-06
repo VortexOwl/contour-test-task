@@ -1,12 +1,12 @@
-using contour_test_task.Models;
 using System.Collections.ObjectModel;
-using TransformXmlApp;
+
+using contour_test_task.Models;
+using contour_test_task.TransformXmlApp;
 
 namespace contour_test_task.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel
     {
-        // Сотрудники для TreeView
         public ObservableCollection<EmployeeNode> Employees { get; } = new();
 
         public MainWindowViewModel()

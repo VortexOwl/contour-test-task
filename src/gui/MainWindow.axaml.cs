@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-using TransformXmlApp;
-using Log;
+using contour_test_task.TransformXmlApp;
+using contour_test_task.Log;
 using contour_test_task.ViewModels;
 
 namespace contour_test_task;

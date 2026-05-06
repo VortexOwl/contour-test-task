@@ -3,21 +3,19 @@ using System.Globalization;
 using System.Xml.Linq;
 using System.Linq;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using Saxon.Api;
 
+using contour_test_task.Log;
 
-using Log;
-
-namespace TransformXmlApp;
+namespace contour_test_task.TransformXmlApp;
 
 public class TransformXml
 {
     public static void TransformXmlMain()
     {
         const string dataFolder = "data";
-        const string styleFolder = "src/transformXml";
+        const string styleFolder = "src/transformXml/xsltStyles";
         const string outputFolder = "result";
 
         Directory.CreateDirectory(outputFolder);
