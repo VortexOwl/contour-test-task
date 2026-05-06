@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        WindowStartupLocation="CenterScreen"
+        x:Class="contour_test_task.MainWindow"
+        Title="Тестовое задание">
+
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Border Background="Gray"
+          BorderBrush="Black"
+          BorderThickness="2"
+          CornerRadius="3"
+          Padding="10" Margin="10">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">  
+            <StackPanel Margin="5">
+                <Label HorizontalAlignment="Center">Name</Label>        
+                <TextBox x:Name="AddName" HorizontalAlignment="Center"></TextBox>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <Label HorizontalAlignment="Center">Surname</Label>        
+                <TextBox x:Name="AddSurname" HorizontalAlignment="Center"></TextBox>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <Label HorizontalAlignment="Center">Mount</Label>        
+                <TextBox x:Name="AddMount" HorizontalAlignment="Center"></TextBox>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <Label HorizontalAlignment="Center">Amount</Label>
+                <TextBox x:Name="AddAmount" HorizontalAlignment="Center"></TextBox>
+            </StackPanel>
+        <Button HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="UpdateData" Margin="7"> Добавить </Button>  
+        </StackPanel>  
+        </Border>
+        
+        <Button HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="ActivationTransformXml"> Запуск </Button>
+    </StackPanel>
+</Window>
