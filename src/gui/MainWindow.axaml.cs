@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using System.Globalization;
 
 using contour_test_task.TransformXmlApp;
 using contour_test_task.Log;
@@ -20,24 +21,21 @@ public partial class MainWindow : Window
 
     private void ActivationTransformXml(object? sender, RoutedEventArgs e) 
     {
-        Logger.Print("DEBUG", "Start Transform");
+        Logger.Print("DEBUG", "Start transform XML");
         TransformXml.TransformXmlMain();
         _viewModel.Reload();
     }
 
-    private void UpdateData(object? sender, RoutedEventArgs e) 
+    private void AddData(object? sender, RoutedEventArgs e) 
     {
-        Logger.Print("DEBUG", "Start Update");
+        Logger.Print("DEBUG", "Start add data");
         string name = AddName.Text ?? "";
         string surname = AddSurname.Text ?? "";
         string mount = AddMount.Text ?? "";
         string amount = AddAmount.Text ?? "";
-        bool isAmount = false;
 
-        if (decimal.TryParse(amount, out decimal dAmount) && dAmount >= 0)
-        {
-            isAmount = true;
-        }
+        string normalized = amount.Replace(',', '.');
+        bool isAmount = decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal dAmount) && dAmount >= 0;
 
         if (name != "" && surname != "" && mount != "" && isAmount) 
         {

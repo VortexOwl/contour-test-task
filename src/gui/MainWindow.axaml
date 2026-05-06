@@ -51,7 +51,7 @@
                 <Label HorizontalAlignment="Center" MinWidth="100">Amount</Label>
                 <TextBox x:Name="AddAmount" HorizontalAlignment="Center" MinWidth="100"></TextBox>
             </StackPanel>
-        <Button HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="UpdateData" Margin="7"> Добавить </Button>  
+        <Button HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="AddData" Margin="7"> Добавить </Button>  
         </StackPanel>  
         </Border>
         

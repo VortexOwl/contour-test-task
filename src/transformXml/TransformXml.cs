@@ -85,7 +85,6 @@ public class TransformXml
         const string tagNameEmployee = "Employee";
         const string tagNameAmount = "amount";
         const string tagNameSalary = "salary";
-        const string tagNameAllSalary = "all_salary";
 
         try
         {
@@ -95,7 +94,7 @@ public class TransformXml
             {
                 var sum = tagEmployee.Elements(tagNameSalary).Sum(s => ParseAmount((string?)s.Attribute(tagNameAmount)));
 
-                tagEmployee.Add(new XElement(tagNameAllSalary, new XAttribute(tagNameAmount, sum.ToString(CultureInfo.InvariantCulture))));
+                tagEmployee.Add(new XAttribute(tagNameAmount, sum.ToString(CultureInfo.InvariantCulture)));
             }
             
             doc.Save(savePath);
@@ -214,7 +213,6 @@ public class TransformXml
         const string tagNameMount = "mount";
         const string tagNameAmount = "amount";
         const string tagNameSalary = "salary";
-        const string tagNameAllSalary = "all_salary";
 
         try
         {
@@ -228,7 +226,8 @@ public class TransformXml
                 var employee = new EmployeeRecord
                 {
                     Name = tagEmployee.Attribute(tagNameName)?.Value ?? "",
-                    Surname = tagEmployee.Attribute(tagNameSurname)?.Value ?? ""
+                    Surname = tagEmployee.Attribute(tagNameSurname)?.Value ?? "",
+                    AllAmount = ParseAmount(tagEmployee.Attribute(tagNameAmount)?.Value)
                 };
 
                 foreach (var tagSalary in tagEmployee.Elements(tagNameSalary))
@@ -240,9 +239,6 @@ public class TransformXml
                     };
                     employee.Salaries.Add(salary);
                 }
-
-                var tagAllSalary = tagEmployee.Element(tagNameAllSalary);
-                employee.AllAmount = ParseAmount(tagAllSalary?.Attribute(tagNameAmount)?.Value);
 
                 employees.Add(employee);
             }
