@@ -3,20 +3,26 @@ using Avalonia.Interactivity;
 
 using TransformXmlApp;
 using Log;
+using contour_test_task.ViewModels;
 
 namespace contour_test_task;
 
 public partial class MainWindow : Window
 {
+    private readonly MainWindowViewModel _viewModel;
+
     public MainWindow()
     {
         InitializeComponent();
+        _viewModel = new MainWindowViewModel();
+        DataContext = _viewModel;
     }
 
     private void ActivationTransformXml(object? sender, RoutedEventArgs e) 
     {
         Logger.Print("DEBUG", "Start Transform");
         TransformXml.TransformXmlMain();
+        _viewModel.Reload();
     }
 
     private void UpdateData(object? sender, RoutedEventArgs e) 

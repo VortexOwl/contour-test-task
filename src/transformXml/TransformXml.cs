@@ -192,10 +192,24 @@ public class TransformXml
         }
     }
 
-    public static List<List<Dictionary<string, string?>>> GetRecordData()
+    public class EmployeeRecord
+    {
+        public string Name { get; set; } = "";
+        public string Surname { get; set; } = "";
+        public List<SalaryRecord> Salaries { get; set; } = new();
+        public decimal AllAmount { get; set; }
+    }
+
+    public class SalaryRecord
+    {
+        public string Mount { get; set; } = "";
+        public decimal Amount { get; set; }
+    }
+
+    public static List<EmployeeRecord> GetRecordData()
     {
         const string dataFolder = "result";
-        
+
         const string tagNameEmployee = "Employee";
         const string tagNameName = "name";
         const string tagNameSurname = "surname";
@@ -203,43 +217,44 @@ public class TransformXml
         const string tagNameAmount = "amount";
         const string tagNameSalary = "salary";
         const string tagNameAllSalary = "all_salary";
-        
+
         try
         {
             string xmlPath = Path.Combine(dataFolder, "Employees1_v2.xml");
             var doc = XDocument.Load(xmlPath);
 
-            List<List<Dictionary<string, string?>>> employees = new List<List<Dictionary<string, string?>>>();
+            List<EmployeeRecord> employees = new();
 
             foreach (var tagEmployee in doc.Descendants(tagNameEmployee))
             {
-                string? name = tagEmployee.Attribute(tagNameName)?.Value ?? "";
-                string? surname = tagEmployee.Attribute(tagNameSurname)?.Value ?? "";
-                
-                var tagAllSalary = tagEmployee.Element(tagNameAllSalary);
-                
-                List<Dictionary<string, string?>> salaries = new List<Dictionary<string, string?>>();
+                var employee = new EmployeeRecord
+                {
+                    Name = tagEmployee.Attribute(tagNameName)?.Value ?? "",
+                    Surname = tagEmployee.Attribute(tagNameSurname)?.Value ?? ""
+                };
 
                 foreach (var tagSalary in tagEmployee.Elements(tagNameSalary))
                 {
-                    Dictionary<string, string?> salary = new Dictionary<string, string?>();
-                    salary[tagNameAmount] = tagEmployee.Attribute(tagNameAmount)?.Value ?? "";
-                    salary[tagNameMount] = tagEmployee.Attribute(tagNameMount)?.Value ?? "";
-                    salaries.Add(salary);
+                    var salary = new SalaryRecord
+                    {
+                        Mount = tagSalary.Attribute(tagNameMount)?.Value ?? "",
+                        Amount = ParseAmount(tagSalary.Attribute(tagNameAmount)?.Value)
+                    };
+                    employee.Salaries.Add(salary);
                 }
-                Dictionary<string, string?> all_salary = new Dictionary<string, string?>();
-                
-                all_salary["all_amount"] = tagAllSalary?.Attribute(tagNameAmount)?.Value ?? "";
-                salaries.Add(all_salary);
 
-                employees.Add(salaries);
+                var tagAllSalary = tagEmployee.Element(tagNameAllSalary);
+                employee.AllAmount = ParseAmount(tagAllSalary?.Attribute(tagNameAmount)?.Value);
+
+                employees.Add(employee);
             }
+
             return employees;
         }
         catch (Exception ex)
         {
             Logger.Print("ERROR", $"\n{ex.GetType().Name}: {ex.Message}");
-            return new List<List<Dictionary<string, string?>>>();
+            return new List<EmployeeRecord>();
         }
     }
 }
